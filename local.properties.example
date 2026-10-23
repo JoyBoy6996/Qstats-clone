@@ -1,0 +1,2 @@
+# Set sdk.dir here (Android Studio writes this file automatically).
+sdk.dir=/path/to/Android/Sdk

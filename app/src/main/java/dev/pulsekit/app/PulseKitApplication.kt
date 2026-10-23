@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import dev.pulsekit.app.data.FpsRecorder
 import dev.pulsekit.app.data.Monitor
 import dev.pulsekit.app.shizuku.ShizukuState
@@ -20,8 +21,9 @@ class PulseKitApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        ShizukuState.init()
-        registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF))
-        Monitor.start(this)
+        CrashLog.install(this)
+        try { ShizukuState.init() } catch (t: Throwable) { CrashLog.write(this, Thread.currentThread(), t) }
+        try { ContextCompat.registerReceiver(this, screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF), ContextCompat.RECEIVER_NOT_EXPORTED) } catch (t: Throwable) { CrashLog.write(this, Thread.currentThread(), t) }
+        try { Monitor.start(this) } catch (t: Throwable) { CrashLog.write(this, Thread.currentThread(), t) }
     }
 }

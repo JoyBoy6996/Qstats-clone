@@ -5,6 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import dev.pulsekit.app.data.Monitor
 import dev.pulsekit.app.shizuku.ShizukuState
 import dev.pulsekit.app.ui.LineChart
+import dev.pulsekit.app.CrashLog
 
 @Composable
 fun HomeScreen(modifier: Modifier) {
@@ -25,6 +33,14 @@ fun HomeScreen(modifier: Modifier) {
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         ScreenTitle("PulseKit", "live system summary")
         ModeBadge(status) { ShizukuState.requestPermission()?.let { android.widget.Toast.makeText(ctx, it, android.widget.Toast.LENGTH_LONG).show() } }
+        var crash by remember { mutableStateOf(CrashLog.read(ctx)) }
+        if (crash != null) {
+            Panel("Last crash (tap to clear)") {
+                Text(crash ?: "", style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(6.dp))
+                Text("tap here to clear", modifier = Modifier.clickable { CrashLog.clear(ctx); crash = null })
+            }
+        }
         Panel("Device") {
             KV("Model", h.device.ifBlank { "n/a" })
             KV("Android", h.android.ifBlank { "n/a" })
